@@ -17,93 +17,36 @@ class BinaryTreeNode {
 };
 
 using namespace std;
-BinaryTreeNode<int>* buildTreeHelper(int *post,int *in,int posts,int poste,int ins,int ine){
-    if(posts>poste || ins>ine){
-        return NULL;
+int findIndex(int inOrder[], int val, int size)
+
+{
+    int index = -1;
+    for (int i = 0; i < size; ++i)
+    {
+        if (inOrder[i] == val)
+            return index = i; // return index if the element matches the given value
     }
-    
-    int rootdata=post[poste];
-    int rootidx=-1;
-    for(int i=0;i<ine+1;i++){
-        if(rootdata==in[i]){
-            rootidx=i;
-            break;
-        }
-    }
-    int lposts=posts;
-    int lins=ins;
-    int line=rootidx-1;
-    int lposte=line-ins+posts;
-    int rins=rootidx+1;
-    int rine=ine;
-    int rposte=poste-1;
-    int rposts=lposte+1;
-    BinaryTreeNode<int>* root=new BinaryTreeNode<int>(rootdata);
-    root->left=buildTreeHelper(post,in,lposts,lposte,lins,line);
-    root->right=buildTreeHelper(post,in,rposts,rposte,rins,rine);
+    return index;
+}
+// function to constructBinaryTree from inOrder and postOrder Traversals
+BinaryTreeNode<int> *constructBinaryTree(int inOrder[], int postOrder[], int startIndex, int endIndex, int *postIndex, int size)
+{
+    if (startIndex > endIndex or (*postIndex) < 0) // base case
+        return nullptr;
+    int rootIndex = findIndex(inOrder, postOrder[*postIndex], size); // subtree root Index
+    BinaryTreeNode<int> *root = new BinaryTreeNode<int>(inOrder[rootIndex]);                       // create the subtree root Node
+    *postIndex = *postIndex - 1;                                     // decrement the postIndex pointer maintained
+    // construct right subtree
+    root->right = constructBinaryTree(inOrder, postOrder, rootIndex + 1, endIndex, postIndex, size);
+    // construct left subtree
+    root->left = constructBinaryTree(inOrder, postOrder, startIndex, rootIndex - 1, postIndex, size);
+    // return the root of the subtree.
     return root;
 }
-
-BinaryTreeNode<int>* buildTree(int *postorder, int postLength, int *inorder, int inLength) {
-    return buildTreeHelper(postorder,inorder,0,postLength-1,0,inLength-1);
-}
-BinaryTreeNode<int> *takeInput() {
-    int rootData;
-    cin >> rootData;
-    if (rootData == -1) {
-        return NULL;
-    }
-    BinaryTreeNode<int> *root = new BinaryTreeNode<int>(rootData);
-    queue<BinaryTreeNode<int> *> q;
-    q.push(root);
-    while (!q.empty()) {
-        BinaryTreeNode<int> *currentNode = q.front();
-        q.pop();
-        int leftChild, rightChild;
-        
-        cin >> leftChild;
-        if (leftChild != -1) {
-            BinaryTreeNode<int> *leftNode = new BinaryTreeNode<int>(leftChild);
-            currentNode->left = leftNode;
-            q.push(leftNode);
-        }
-
-        cin >> rightChild;
-        if (rightChild != -1) {
-            BinaryTreeNode<int> *rightNode =
-                new BinaryTreeNode<int>(rightChild);
-            currentNode->right = rightNode;
-            q.push(rightNode);
-        }
-    }
-    return root;
-}
-
-void printLevelATNewLine(BinaryTreeNode<int> *root) {
-    queue<BinaryTreeNode<int> *> q;
-    q.push(root);
-    q.push(NULL);
-    while (!q.empty()) {
-        BinaryTreeNode<int> *first = q.front();
-        q.pop();
-        if (first == NULL) {
-            if (q.empty()) {
-                break;
-            }
-            cout << endl;
-            q.push(NULL);
-            continue;
-        }
-        cout << first->data << " ";
-        if (first->left != NULL) {
-            q.push(first->left);
-        }
-        if (first->right != NULL) {
-            q.push(first->right);
-        }
-    }
-}
-
+BinaryTreeNode<int>* buildTree(int *post,int psize,int *in,int insize)
+{
+    int postindex=psize-1;
+    return constructBinaryTree(in,post,0,psize-1,&postindex,psize);
 int main() {
     int size;
     cin >> size;
